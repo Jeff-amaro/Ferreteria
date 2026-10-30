@@ -2,8 +2,12 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,5 +35,11 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:administrador')->group(function () {
         Route::resource('users', UserController::class)->except(['show']);
+
+        Route::post('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
+        Route::resource('products', ProductController::class);
+        Route::resource('categories', CategoryController::class)->except(['show']);
+        Route::resource('clients', ClientController::class);
+        Route::resource('suppliers', SupplierController::class);
     });
 });
