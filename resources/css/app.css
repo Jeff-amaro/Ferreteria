@@ -1,0 +1,80 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-primary-50: #eef1ff;
+    --color-primary-100: #dfe4ff;
+    --color-primary-200: #c5ceff;
+    --color-primary-300: #9faaff;
+    --color-primary-400: #737cff;
+    --color-primary-500: #4f52ff;
+    --color-primary-600: #0820d7;
+    --color-primary-700: #0719b0;
+    --color-primary-800: #0b188c;
+    --color-primary-900: #101a6f;
+}
+
+@layer base {
+    body {
+        @apply bg-slate-100 text-slate-800 antialiased;
+    }
+}
+
+@layer components {
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .btn-primary {
+        @apply btn bg-primary-600 text-white shadow-sm hover:bg-primary-700 focus:ring-primary-500;
+    }
+
+    .btn-secondary {
+        @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus:ring-primary-500;
+    }
+
+    .btn-danger {
+        @apply btn bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500;
+    }
+
+    .btn-ghost {
+        @apply btn text-slate-600 hover:bg-slate-100;
+    }
+
+    .card {
+        @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+    }
+
+    .input {
+        @apply block w-full rounded-xl border-slate-300 text-sm shadow-sm placeholder:text-slate-400 focus:border-primary-500 focus:ring-primary-500;
+    }
+
+    .label {
+        @apply mb-1.5 block text-sm font-medium text-slate-700;
+    }
+
+    .table-base {
+        @apply min-w-full divide-y divide-slate-200 text-sm;
+    }
+
+    .table-base thead th {
+        @apply bg-slate-50 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500;
+    }
+
+    .table-base tbody td {
+        @apply px-4 py-3 align-middle;
+    }
+
+    .table-base tbody tr {
+        @apply border-b border-slate-100 last:border-0 hover:bg-slate-50/70;
+    }
+
+    .badge {
+        @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold;
+    }
+}
