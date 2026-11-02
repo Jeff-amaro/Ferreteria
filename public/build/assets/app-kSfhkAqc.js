@@ -1,0 +1,1 @@
+document.addEventListener(`DOMContentLoaded`,()=>{document.querySelectorAll(`[data-dismiss]`).forEach(e=>{e.addEventListener(`click`,()=>e.closest(`[data-flash]`)?.remove())});let e=document.getElementById(`sidebar`);document.querySelectorAll(`[data-sidebar-toggle]`).forEach(t=>{t.addEventListener(`click`,()=>e?.classList.toggle(`-translate-x-full`))})});
