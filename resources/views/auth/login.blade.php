@@ -39,6 +39,7 @@
             <p><span class="font-medium text-slate-800">Administrador:</span> admin@ejj.pe / password</p>
             <p><span class="font-medium text-slate-800">Vendedor:</span> vendedor@ejj.pe / password</p>
             <p><span class="font-medium text-slate-800">Almacenero:</span> almacen@ejj.pe / password</p>
+            <p><span class="font-medium text-slate-800">Repartidor:</span> repartidor@ferreteria.com / password</p>
         </div>
     </div>
 

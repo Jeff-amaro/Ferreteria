@@ -21,6 +21,10 @@ class DashboardController extends Controller
             return redirect()->route('catalog.index');
         }
 
+        if ($user->role === UserRole::Repartidor) {
+            return redirect()->route('delivery.index');
+        }
+
         $stats = [
             'sales_today' => (float) SalesOrder::whereDate('created_at', today())
                 ->where('status', '!=', 'anulado')->sum('total'),

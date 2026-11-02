@@ -7,6 +7,7 @@ enum UserRole: string
     case Administrador = 'administrador';
     case Vendedor = 'vendedor';
     case Almacenero = 'almacenero';
+    case Repartidor = 'repartidor';
     case Cliente = 'cliente';
 
     public function label(): string
@@ -15,6 +16,7 @@ enum UserRole: string
             self::Administrador => 'Administrador',
             self::Vendedor => 'Vendedor',
             self::Almacenero => 'Almacenero',
+            self::Repartidor => 'Repartidor',
             self::Cliente => 'Cliente',
         };
     }
@@ -25,6 +27,7 @@ enum UserRole: string
             self::Administrador => 'bg-primary-100 text-primary-700',
             self::Vendedor => 'bg-emerald-100 text-emerald-700',
             self::Almacenero => 'bg-amber-100 text-amber-700',
+            self::Repartidor => 'bg-indigo-100 text-indigo-700',
             self::Cliente => 'bg-slate-100 text-slate-700',
         };
     }

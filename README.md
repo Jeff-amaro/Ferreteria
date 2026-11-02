@@ -190,5 +190,6 @@ Las siguientes cuentas son exclusivamente para el entorno local de demostración
 | Administrador | `admin@ferreteria.com` | `password` |
 | Vendedor | `vendedor@ferreteria.com` | `password` |
 | Almacenero | `almacen@ferreteria.com` | `password` |
+| Repartidor | `repartidor@ferreteria.com` | `password` |
 
 > Estas credenciales deben reemplazarse antes de desplegar el sistema en un entorno productivo.

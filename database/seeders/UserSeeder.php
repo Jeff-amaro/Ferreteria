@@ -36,6 +36,14 @@ class UserSeeder extends Seeder
                 'address' => 'Av. Almacenes 780, Lima',
             ],
             [
+                'name' => 'Jorge Ramirez',
+                'email' => 'repartidor@ferreteria.com',
+                'role' => UserRole::Repartidor,
+                'dni' => '70000005',
+                'phone' => '987654325',
+                'address' => 'Av. Los Transportistas 560, Lima',
+            ],
+            [
                 'name' => 'Carlos Mendoza',
                 'email' => 'cliente@ejj.pe',
                 'role' => UserRole::Cliente,

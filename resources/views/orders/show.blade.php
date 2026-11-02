@@ -10,7 +10,7 @@
         @elseif ($order->payment_status !== 'pagado' && $order->status !== 'anulado')
             <a href="{{ route('orders.payment', $order) }}" class="btn-primary"><x-icon name="wallet" class="h-4 w-4" /> Registrar pago</a>
         @endif
-        @if ($order->status === 'despachado')
+        @if (in_array($order->status, ['despachado', 'en_camino', 'con_incidencia'], true))
             <a href="{{ route('orders.delivery', $order) }}" class="btn-primary"><x-icon name="truck" class="h-4 w-4" /> Confirmar entrega</a>
         @endif
     </x-page-header>
@@ -33,6 +33,13 @@
                             <x-status-badge :color="$order->payment_status_color">{{ $order->payment_status_label }}</x-status-badge>
                         </div>
                         <p class="mt-2 text-xs text-slate-500">Vendedor: {{ $order->user?->name }}</p>
+                        <p class="text-xs text-slate-500">Repartidor: {{ $order->repartidor?->name ?? 'Sin asignar' }}</p>
+                        @if ($order->fecha_despacho)
+                            <p class="text-xs text-slate-500">Despacho: {{ $order->fecha_despacho->format('d/m/Y H:i') }}</p>
+                        @endif
+                        @if ($order->fecha_entrega)
+                            <p class="text-xs text-emerald-600">Entrega real: {{ $order->fecha_entrega->format('d/m/Y H:i') }}</p>
+                        @endif
                         @if ($order->quotation)
                             <p class="text-xs text-slate-500">Origen: <a href="{{ route('quotations.show', $order->quotation) }}" class="font-semibold text-primary-600 hover:underline">{{ $order->quotation->code }}</a></p>
                         @endif
@@ -136,6 +143,50 @@
         </div>
 
         <aside class="space-y-4">
+            <div class="card p-5">
+                <h2 class="text-sm font-bold uppercase tracking-wide text-slate-500">Asignación de repartidor</h2>
+                <dl class="mt-3 space-y-2 text-sm">
+                    <div class="flex justify-between gap-3"><dt class="text-slate-500">Repartidor</dt><dd class="text-right font-medium">{{ $order->repartidor?->name ?? 'Sin asignar' }}</dd></div>
+                    @if ($order->repartidor?->phone)
+                        <div class="flex justify-between gap-3"><dt class="text-slate-500">Teléfono</dt><dd>{{ $order->repartidor->phone }}</dd></div>
+                    @endif
+                    <div class="flex justify-between gap-3"><dt class="text-slate-500">Despacho</dt><dd>{{ $order->fecha_despacho?->format('d/m/Y H:i') ?? 'Pendiente' }}</dd></div>
+                    <div class="flex justify-between gap-3"><dt class="text-slate-500">Entrega real</dt><dd>{{ $order->fecha_entrega?->format('d/m/Y H:i') ?? 'Pendiente' }}</dd></div>
+                </dl>
+
+                @if (! in_array($order->status, ['entregado', 'anulado'], true))
+                    <form method="POST" action="{{ route('orders.courier', $order) }}" class="mt-4 space-y-2">
+                        @csrf
+                        <label for="repartidor_id" class="label">Asignar a</label>
+                        <select name="repartidor_id" id="repartidor_id" class="input">
+                            <option value="">Sin asignar</option>
+                            @foreach ($couriers as $courier)
+                                <option value="{{ $courier->id }}" @selected((string) $order->repartidor_id === (string) $courier->id)>
+                                    {{ $courier->name }}{{ $courier->phone ? ' · '.$courier->phone : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('repartidor_id')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                        <button type="submit" class="btn-secondary w-full">Guardar asignación</button>
+                    </form>
+                @endif
+
+                @if ($order->codigo_confirmacion)
+                    <div class="mt-4 rounded-xl border border-primary-100 bg-primary-50 p-3">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-primary-700">Código de confirmación</p>
+                        <p class="mt-1 font-mono text-xl font-bold tracking-[0.2em] text-primary-800">{{ $order->codigo_confirmacion }}</p>
+                        <p class="mt-1 text-xs text-primary-700">Compártelo con el cliente para validar la entrega.</p>
+                    </div>
+                @endif
+
+                @if ($order->incidencia_nota)
+                    <div class="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
+                        <p class="font-semibold">Incidencia actual</p>
+                        <p class="mt-1">{{ $order->incidencia_nota }}</p>
+                    </div>
+                @endif
+            </div>
+
             <div class="card p-5">
                 <h2 class="text-sm font-bold uppercase tracking-wide text-slate-500">Actualizar estado</h2>
                 @if ($order->next_statuses === [])

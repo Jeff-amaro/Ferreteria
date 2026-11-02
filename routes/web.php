@@ -10,6 +10,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientLookupController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InventoryCountController;
 use App\Http\Controllers\PosController;
@@ -44,6 +45,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/perfil', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/perfil', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/perfil/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
+    Route::middleware('role:repartidor')->prefix('repartidor')->name('delivery.')->group(function () {
+        Route::get('ordenes', [DeliveryController::class, 'index'])->name('index');
+        Route::get('ordenes/{order}', [DeliveryController::class, 'show'])->name('show');
+        Route::post('ordenes/{order}/en-camino', [DeliveryController::class, 'startRoute'])->name('start');
+        Route::get('ordenes/{order}/incidencia', [DeliveryController::class, 'incident'])->name('incident');
+        Route::post('ordenes/{order}/incidencia', [DeliveryController::class, 'incidentStore'])->name('incident.store');
+        Route::get('ordenes/{order}/entrega', [DeliveryController::class, 'confirm'])->name('confirm');
+        Route::post('ordenes/{order}/entrega', [DeliveryController::class, 'confirmStore'])->name('confirm.store');
+    });
 
     Route::middleware('role:administrador')->group(function () {
         Route::resource('users', UserController::class)->except(['show']);
@@ -86,6 +97,7 @@ Route::middleware('auth')->group(function () {
         Route::get('ordenes', [SalesOrderController::class, 'index'])->name('orders.index');
         Route::get('ordenes/{order}', [SalesOrderController::class, 'show'])->name('orders.show');
         Route::post('ordenes/{order}/estado', [SalesOrderController::class, 'status'])->name('orders.status');
+        Route::post('ordenes/{order}/repartidor', [SalesOrderController::class, 'assignCourier'])->name('orders.courier');
         Route::get('ordenes/{order}/pago', [SalesOrderController::class, 'payment'])->name('orders.payment');
         Route::post('ordenes/{order}/pago', [SalesOrderController::class, 'paymentStore'])->name('orders.payment.store');
         Route::get('ordenes/{order}/entrega', [SalesOrderController::class, 'delivery'])->name('orders.delivery');

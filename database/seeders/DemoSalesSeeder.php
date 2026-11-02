@@ -260,5 +260,15 @@ class DemoSalesSeeder extends Seeder
                 ]);
             }
         }
+
+        $courier = User::where('email', 'repartidor@ferreteria.com')->first();
+        $deliveryOrder = SalesOrder::where('code', 'OV-00001')->first();
+
+        if ($courier && $deliveryOrder && ! $deliveryOrder->repartidor_id) {
+            $deliveryOrder->update([
+                'repartidor_id' => $courier->id,
+                'codigo_confirmacion' => '482915',
+            ]);
+        }
     }
 }

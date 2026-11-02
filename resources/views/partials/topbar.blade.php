@@ -12,12 +12,18 @@
         <h2 class="truncate text-lg font-bold text-slate-900">@yield('title', 'Panel de control')</h2>
     </div>
 
-    <a href="{{ route('alerts.index') }}" class="relative rounded-xl border border-slate-200 p-2.5 text-slate-500 transition hover:bg-slate-50 hover:text-slate-700" aria-label="Alertas">
-        <x-icon name="alert" class="h-5 w-5" />
-        @if ($pendingAlerts > 0)
-            <span class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white">{{ $pendingAlerts }}</span>
-        @endif
-    </a>
+    @if (auth()->user()->hasRole(['administrador', 'vendedor', 'almacenero']))
+        <a href="{{ route('alerts.index') }}" class="relative rounded-xl border border-slate-200 p-2.5 text-slate-500 transition hover:bg-slate-50 hover:text-slate-700" aria-label="Alertas">
+            <x-icon name="alert" class="h-5 w-5" />
+            @if ($pendingAlerts > 0)
+                <span class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white">{{ $pendingAlerts }}</span>
+            @endif
+        </a>
+    @elseif (auth()->user()->hasRole('repartidor'))
+        <a href="{{ route('delivery.index') }}" class="rounded-xl border border-slate-200 p-2.5 text-slate-500 transition hover:bg-slate-50 hover:text-slate-700" aria-label="Mis entregas">
+            <x-icon name="truck" class="h-5 w-5" />
+        </a>
+    @endif
 
     <div class="hidden items-center gap-3 border-l border-slate-200 pl-4 sm:flex">
         <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">

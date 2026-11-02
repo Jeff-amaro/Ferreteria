@@ -17,6 +17,8 @@ class SalesOrder extends Model
         'pendiente' => 'Pendiente',
         'en_preparacion' => 'En preparación',
         'despachado' => 'Despachado',
+        'en_camino' => 'En camino',
+        'con_incidencia' => 'Con incidencia',
         'entregado' => 'Entregado',
         'anulado' => 'Anulado',
     ];
@@ -29,8 +31,10 @@ class SalesOrder extends Model
 
     public const TRANSITIONS = [
         'pendiente' => ['en_preparacion', 'anulado'],
-        'en_preparacion' => ['despachado', 'anulado'],
-        'despachado' => ['entregado'],
+        'en_preparacion' => ['despachado', 'en_camino', 'anulado'],
+        'despachado' => ['en_camino', 'con_incidencia', 'entregado'],
+        'en_camino' => ['con_incidencia', 'entregado'],
+        'con_incidencia' => ['en_camino', 'entregado'],
         'entregado' => [],
         'anulado' => [],
     ];
@@ -39,6 +43,7 @@ class SalesOrder extends Model
         'code',
         'client_id',
         'user_id',
+        'repartidor_id',
         'quotation_id',
         'subtotal',
         'discount',
@@ -49,6 +54,10 @@ class SalesOrder extends Model
         'payment_status',
         'delivery_address',
         'delivery_date',
+        'fecha_despacho',
+        'fecha_entrega',
+        'incidencia_nota',
+        'codigo_confirmacion',
         'notes',
     ];
 
@@ -59,6 +68,8 @@ class SalesOrder extends Model
         'igv' => 'decimal:2',
         'total' => 'decimal:2',
         'delivery_date' => 'date',
+        'fecha_despacho' => 'datetime',
+        'fecha_entrega' => 'datetime',
     ];
 
     public function client(): BelongsTo
@@ -69,6 +80,11 @@ class SalesOrder extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function repartidor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'repartidor_id');
     }
 
     public function quotation(): BelongsTo
@@ -117,6 +133,8 @@ class SalesOrder extends Model
             'pendiente' => 'bg-amber-100 text-amber-700',
             'en_preparacion' => 'bg-sky-100 text-sky-700',
             'despachado' => 'bg-indigo-100 text-indigo-700',
+            'en_camino' => 'bg-sky-100 text-sky-700',
+            'con_incidencia' => 'bg-rose-100 text-rose-700',
             'entregado' => 'bg-emerald-100 text-emerald-700',
             'anulado' => 'bg-rose-100 text-rose-700',
             default => 'bg-slate-100 text-slate-700',

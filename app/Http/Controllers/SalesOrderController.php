@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
+use App\Http\Requests\CourierAssignmentRequest;
 use App\Http\Requests\DeliveryRequest;
 use App\Http\Requests\OrderStatusRequest;
 use App\Http\Requests\PaymentRequest;
 use App\Models\DeliveryConfirmation;
+use App\Models\OrderStatusHistory;
 use App\Models\SalesOrder;
+use App\Models\User;
 use App\Services\SalesService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +22,7 @@ class SalesOrderController extends Controller
 
     public function index(Request $request)
     {
-        $orders = SalesOrder::with(['client', 'user', 'receipt'])
+        $orders = SalesOrder::with(['client', 'user', 'repartidor', 'receipt'])
             ->when($request->filled('search'), function ($q) use ($request) {
                 $term = $request->input('search');
                 $q->where(function ($query) use ($term) {
@@ -41,6 +45,7 @@ class SalesOrderController extends Controller
         $order->load([
             'client',
             'user',
+            'repartidor',
             'quotation',
             'items.product',
             'payments.user',
@@ -49,7 +54,38 @@ class SalesOrderController extends Controller
             'statusHistories.user',
         ]);
 
-        return view('orders.show', compact('order'));
+        $couriers = User::where('role', UserRole::Repartidor)->where('active', true)->orderBy('name')->get();
+
+        return view('orders.show', compact('order', 'couriers'));
+    }
+
+    public function assignCourier(CourierAssignmentRequest $request, SalesOrder $order)
+    {
+        if (in_array($order->status, ['entregado', 'anulado'], true)) {
+            return back()->with('error', 'No se puede asignar un repartidor a una orden cerrada.');
+        }
+
+        $courier = $request->filled('repartidor_id')
+            ? User::find($request->validated('repartidor_id'))
+            : null;
+
+        $order->update([
+            'repartidor_id' => $courier?->id,
+            'codigo_confirmacion' => $order->codigo_confirmacion ?: $this->generateConfirmationCode(),
+        ]);
+
+        OrderStatusHistory::create([
+            'sales_order_id' => $order->id,
+            'user_id' => $request->user()->id,
+            'status' => $order->status,
+            'comment' => $courier
+                ? 'Repartidor asignado: '.$courier->name.'.'
+                : 'Asignación de repartidor retirada.',
+        ]);
+
+        return back()->with('success', $courier
+            ? 'Pedido asignado a '.$courier->name.'. Código de confirmación generado.'
+            : 'Se retiró la asignación del repartidor.');
     }
 
     public function status(OrderStatusRequest $request, SalesOrder $order)
@@ -89,9 +125,9 @@ class SalesOrderController extends Controller
     {
         $order->load(['client', 'items', 'deliveryConfirmation']);
 
-        if ($order->status !== 'despachado') {
+        if (! in_array($order->status, ['despachado', 'en_camino', 'con_incidencia'], true)) {
             return redirect()->route('orders.show', $order)
-                ->with('error', 'Solo las órdenes despachadas pueden confirmar entrega.');
+                ->with('error', 'Solo las órdenes despachadas o en camino pueden confirmar entrega.');
         }
 
         return view('orders.delivery', compact('order'));
@@ -99,9 +135,9 @@ class SalesOrderController extends Controller
 
     public function deliveryStore(DeliveryRequest $request, SalesOrder $order)
     {
-        if ($order->status !== 'despachado') {
+        if (! in_array($order->status, ['despachado', 'en_camino', 'con_incidencia'], true)) {
             throw ValidationException::withMessages([
-                'status' => 'Solo las órdenes despachadas pueden confirmar entrega.',
+                'status' => 'Solo las órdenes despachadas o en camino pueden confirmar entrega.',
             ]);
         }
 
@@ -128,5 +164,14 @@ class SalesOrderController extends Controller
         });
 
         return redirect()->route('orders.show', $order)->with('success', 'Entrega confirmada. La orden fue marcada como entregada.');
+    }
+
+    private function generateConfirmationCode(): string
+    {
+        do {
+            $code = (string) random_int(100000, 999999);
+        } while (SalesOrder::where('codigo_confirmacion', $code)->exists());
+
+        return $code;
     }
 }

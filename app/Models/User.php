@@ -73,6 +73,11 @@ class User extends Authenticatable
         return $this->hasMany(SalesOrder::class);
     }
 
+    public function deliveries(): HasMany
+    {
+        return $this->hasMany(SalesOrder::class, 'repartidor_id');
+    }
+
     public function inventoryCounts(): HasMany
     {
         return $this->hasMany(InventoryCount::class);

@@ -21,6 +21,15 @@
             </div>
         </div>
 
+        @if ($user->hasRole('repartidor'))
+            <div>
+                <p class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-widest text-slate-400">Entregas</p>
+                <div class="space-y-1">
+                    <x-nav-link route="delivery.index" icon="truck">Mis entregas</x-nav-link>
+                </div>
+            </div>
+        @endif
+
         @if ($user->hasRole(['administrador', 'vendedor']))
             <div>
                 <p class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-widest text-slate-400">Ventas</p>
